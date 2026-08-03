@@ -4,11 +4,12 @@ from datetime import time
 # Third-party libraries
 import numpy as np
 import pandas as pd
-
-# Local imports
 import yfinance as yf
 from massive import RESTClient
 from datetime import time
+
+# Local imports
+
 
 def load_yfinance_data(ticker, period="60d", interval="2m"):
 

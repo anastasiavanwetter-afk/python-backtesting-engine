@@ -4,9 +4,10 @@ from datetime import time
 # Third-party libraries
 import numpy as np
 import pandas as pd
+import matplotlib.pyplot as plt
 
 # Local imports
-import matplotlib.pyplot as plt
+
 
 def equity_curve(trades_df):
     plt.figure(figsize=(12,6))

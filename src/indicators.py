@@ -4,9 +4,10 @@ from datetime import time
 # Third-party libraries
 import numpy as np
 import pandas as pd
+from ta.volatility import AverageTrueRange
 
 # Local imports
-from ta.volatility import AverageTrueRange
+
 
 def get_vwap(data):
     data = data.copy()
