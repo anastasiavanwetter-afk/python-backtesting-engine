@@ -1,7 +1,7 @@
 # Python Backtesting Engine
 
 ## Description
-A pyhton backtesting engine for developing and testing trading strategies on user-provided market data. It is a pipeline that separates loading data (+ preprocessing), introducing indicators, strategy generation, backtesting and statistics. Results are visualised with a separate plotting module. The Main purpose of this project is to improve my python skills while learning quantitative trading and backtesting strategies.
+pyhton backtesting engine for developing and testing trading strategies on user-provided market data. It is a pipeline that separates loading data (+ preprocessing), introducing indicators, strategy generation, backtesting and statistics. Results are visualised with a separate plotting module. The Main purpose of this project is to improve my python skills while learning quantitative trading and backtesting strategies.
 
 ## Project structure
 
@@ -58,7 +58,7 @@ distribution_PnL(trades)
 ```
 
 ## Strategy
-To test the engine a crossover strategy was created where a signal is generated whenever the 9 EMA crosses over/under the VWAP during the first hour after market open (as this is a momentum driven strategy). 
+To test the engine a crossover strategy was created where a signal is generated whenever the 9 EMA crosses over/under the VWAP within the first hour after market open (as this is a momentum driven strategy). 
 
 Entry
 - EMA crosses over VWAP --> long
