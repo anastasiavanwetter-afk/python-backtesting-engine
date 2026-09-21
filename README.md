@@ -162,7 +162,7 @@ A position is closed when one of the following occurs:
 Engine ran on 21/09/2026 11:30 for ticker "AAPL"
 
 output:
-```tekst
+```text
 ========== BACKTEST RESULTS ==========
 
 PERFORMANCE
