@@ -131,7 +131,8 @@ equity_curve(trades)
 drawdown_curve(trades)
 pnl_per_trade(trades)
 distribution_exits(trades)
-plot_pnl_distribution(trades)```
+plot_pnl_distribution(trades)
+```
 
 ## Strategy
 To test the engine, a simple EMA/VWAP crossover strategy was implemented.
