@@ -1,0 +1,619 @@
+{
+ "cells": [
+  {
+   "cell_type": "markdown",
+   "id": "da4aae2c-cfc5-473a-84a9-aaba096a6b38",
+   "metadata": {},
+   "source": [
+    "# Statistical model of a trade"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "d0471c8e-0212-4a0e-9997-8ec70a18899e",
+   "metadata": {},
+   "source": [
+    "## Bernouilli distribution"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "58aaa00c-376b-470c-9c04-45ae7c4cf762",
+   "metadata": {},
+   "source": [
+    "Placing a trade can be described by a bernouilli experiment with 2 possible outcomes: win and loss. \n",
+    "\n",
+    "$$\n",
+    "\\begin{equation}\n",
+    "X = \n",
+    "\\begin{cases} \n",
+    "1 & \\text{win} \\\\\n",
+    "0  & \\text{loss}  \n",
+    "\\end{cases}\n",
+    "\\end{equation}\n",
+    "$$\n",
+    "\n",
+    "The probability of succes (win) is the win rate $p$. Prability of a loss is then $(1-p)$. Thus, placing a trade follows:\n",
+    "\n",
+    "$$\n",
+    "X \\sim Bern(p) \n",
+    "$$\n",
+    "$$\n",
+    "P(X=1) = p\n",
+    "$$\n",
+    "\n",
+    "With:\n",
+    "\n",
+    "$$\n",
+    "E[X] = \\sum{P(X_i) X_i} = 1 \\cdot p + 0 \\cdot (1-p) = p\n",
+    "$$\n",
+    "$$\n",
+    "Var[X] = E[X^2] - E[X]^2 = [(1^2) \\cdot p + (0^2) \\cdot (1-p)] - [p^2] = p - p^2 = p (1-p)\n",
+    "$$\n",
+    " "
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "1c54120e-d346-4289-a32c-087c384e5182",
+   "metadata": {},
+   "source": [
+    "## Binomial distribution"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "90eef10e-3baa-4016-9a3a-1989c8c18537",
+   "metadata": {},
+   "source": [
+    "When we look at the number of wins S, given n independant trades, it will follow a binomial distribution.\n",
+    "\n",
+    "$$\n",
+    "S = \\sum_{x=1}^{n} X_i\n",
+    "$$\n",
+    "\n",
+    "With\n",
+    "\n",
+    "$$\n",
+    "S \\sim Bin(n, p)\n",
+    "$$\n",
+    "\n",
+    "The expected value and variance are:\n",
+    "\n",
+    "$$\n",
+    "E[S] = E[X_1 + X_2 + ... + X_n] = E[X_1] + E[X_2] + ... + E[X_n] = p + p + ... + p = n p\n",
+    "$$\n",
+    "$$\n",
+    "Var[S] = E[S^2] - E[S]^2 = np + n(n-1)p^2 -(np)^2 = np(1-p)\n",
+    "$$\n",
+    "\n",
+    "with\n",
+    "\n",
+    "$$\n",
+    "S^2 = \\sum_{i=1}^{n} X_i^2 + 2 \\sum_{i<j} X_i X_j\n",
+    "$$\n",
+    "\n",
+    "And given all $X_i$ are independant bernouilli trials\n",
+    "\n",
+    "$$\n",
+    "E[S^2] = \\sum_{i=1}^{n} E[X_i^2] + 2 \\sum_{i<j} E[X_i X_j] = np + 2\\sum_{i<j} E[X_i] E[X_j] = np + 2 {n \\choose 2}p^2 = np + 2 \\frac {n(n-1)}{2} p^2 = np + n(n-1)p^2\n",
+    "$$\n",
+    "\n",
+    "Or\n",
+    "\n",
+    "$$\n",
+    "Var(S) = Var(X_1 + X_2 + ... + X_n) = Var(X_1) + Var(X_2) + ... + Var(X_n) = np(1-p)\n",
+    "$$"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "f1174dc8-456b-4c41-a82a-a5d3f9ab033d",
+   "metadata": {},
+   "source": [
+    "# Estimators"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "4a1d582b-eee9-46d9-905a-c32369448cf0",
+   "metadata": {},
+   "source": [
+    "## Winrate as estimator"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "7b0e5af2-3140-418a-80e5-f53b7be9c4e7",
+   "metadata": {},
+   "source": [
+    "The observerd winrate can be denoted as:\n",
+    "\n",
+    "$$\n",
+    "\\hat{p} = \\frac{S}{n}\n",
+    "$$\n",
+    "\n",
+    "So\n",
+    "\n",
+    "$$\n",
+    "E[\\hat{p}] = \\frac{E[S]}{n} = \\frac{np}{n} = p \n",
+    "$$\n",
+    "\n",
+    "$$\n",
+    "Var[\\hat{p}] = \\frac{Var[S]}{n} = \\frac{np(1-p)}{n^2} = \\frac{p(1-p)}{n}\n",
+    "$$\n",
+    "\n",
+    "Standard error (denoted SE) measures the variability of an estimator across repeated samples. \n",
+    "\n",
+    "$$\n",
+    "SE[\\hat{p}] = \\sqrt{\\frac{p(1-p)}{n}}\n",
+    "$$"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "cfd371d9-2ef4-431c-84d3-c7d0f4e3b56b",
+   "metadata": {},
+   "source": [
+    "## Mean as estimator"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "d2c320f6-bd23-4f03-8e81-8c3115fc81d4",
+   "metadata": {},
+   "source": [
+    "Let X be the PnL for each trade, then the expected value for this strategy is equal to the mean of its distribution:\n",
+    "\n",
+    "$$\n",
+    "E[X] = \\mu\n",
+    "$$\n",
+    "\n",
+    "As the true distribution and mean are unknown, an estimator can be used. \n",
+    "\n",
+    "$$\n",
+    "\\bar{X} = \\frac{1}{n} \\sum X_i \n",
+    "$$\n",
+    "\n",
+    "This can further be rewritten as:\n",
+    "\n",
+    "$$\n",
+    "\\bar{X} = \\frac{1}{n} (\\sum_{X_i>0} X_i + \\sum_{X_i<0} X_i) = \\frac{1}{n} (Profits + Losses) = \\frac{n_{wins}}{n}\\frac{Profits}{n_{wins}} + \\frac{n_{losses}}{n}\\frac{Losses}{n_{losses}} = p \\cdot AvgWin + (1-p) \\cdot AvgLoss\n",
+    "$$\n",
+    "\n",
+    "For which\n",
+    "\n",
+    "$$\n",
+    "E[\\bar{X}] = \\mu \n",
+    "$$\n",
+    "\n",
+    "Given all $X_i$ are independant:\n",
+    "\n",
+    "$$\n",
+    "Var[\\bar{X}] = \\frac{1}{n^2} Var[X_1+...+X_n]=\\frac{1}{n^2} Var[X_1] +...+ Var[X_n] = \\frac{1}{n^2}n\\sigma^2 = \\frac{\\sigma^2}{n}\n",
+    "$$\n",
+    "\n",
+    "As $\\sigma$ is also unknown, we will estimate it with s. As $\\mu$ is also unknown we lose 1 degree of freedom, hence, the denominator becomes n-1 instead of n.\n",
+    "\n",
+    "$$\n",
+    "\\sigma^2 = E[(X-\\mu)^2] \\implies s^2 = \\frac{1}{n-1} \\sum (X_i - \\bar{X})^2\n",
+    "$$\n",
+    "\n",
+    "Hence\n",
+    "\n",
+    "$$\n",
+    "Var[\\bar{X}] = \\frac{s^2}{n}\n",
+    "$$\n",
+    "\n",
+    "For the standard error we find:\n",
+    "\n",
+    "$$\n",
+    "SE[\\bar{X}] = \\sqrt{\\frac{s^2}{n}} = \\frac{s}{\\sqrt{n}}\n",
+    "$$"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "779fda93-a87b-4034-af11-370dd5c915cc",
+   "metadata": {},
+   "source": [
+    "## Confidence intervals for estimators"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "36205903-709c-4d79-beba-a5b719d42aaa",
+   "metadata": {},
+   "source": [
+    "Let X be the estimator around which a confidence interval should be calculated. Accoridng to the central limit theorem, for large n (sampling size) X will approach a normal distribution.\n",
+    "\n",
+    "\n",
+    "$$\n",
+    "X \\approx N(\\mu, \\frac{\\sigma^2}{n})\n",
+    "$$\n",
+    "\n",
+    "After standardisation:\n",
+    "\n",
+    "$$\n",
+    "Z = \\frac{X-\\mu}{\\sigma/\\sqrt{n}} \\text{ and } Z \\sim N(0, 1)\n",
+    "$$\n",
+    "\n",
+    "The 95% CI for a standard normal distribution is:\n",
+    "\n",
+    "$$\n",
+    "\\begin{align*}\n",
+    "    P(-1.96 \\leq Z \\leq 1.96) = 0.95 \\\\\n",
+    "    P(-1.96 \\leq \\frac{X-\\mu}{\\sigma/\\sqrt{n}} \\leq 1.96) = 0.95\\\\\n",
+    "    X - 1.96SE \\leq \\mu \\leq X+1.96SE\n",
+    "\\end{align*}\n",
+    "$$\n",
+    "\n",
+    "Thus\n",
+    "\n",
+    "$$\n",
+    "CI_{95%} = X \\mp 1.96SE\n",
+    "$$"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "e9371267-ecac-41dd-ace8-50a927092f4b",
+   "metadata": {},
+   "source": [
+    "### 95% CI for win rate"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "3f5c9f85-3a2f-4753-8e85-47e8badb1dfa",
+   "metadata": {},
+   "source": [
+    "The win rate can be estimated by $\\hat{p}=\\frac{S}{n}$. The standard error was found to be:\n",
+    "\n",
+    "$$\n",
+    "SE[\\hat{p}] = \\sqrt{\\frac{\\hat{p}(1-\\hat{p})}{n}}\n",
+    "$$\n",
+    "\n",
+    "Thus, by normal approach, the 95% confidence interval will be:\n",
+    "\n",
+    "$$\n",
+    "CI_{95%} = \\hat{p} \\pm 1.96\\sqrt{\\frac{\\hat{p}(1-\\hat{p})}{n}}\n",
+    "$$\n",
+    "\n",
+    "Note: The normal approximation is convenient analytically, but can perform poorly for small samples or proportions close to 0 or 1. Wilson or exact binomial intervals can be considered for practical applications"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "6d442280-6078-4f93-ab96-4b69db563afe",
+   "metadata": {},
+   "source": [
+    "### 95% CI for mean"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "a3eed1b0-af07-4525-8745-2ada3cf89421",
+   "metadata": {},
+   "source": [
+    "The mean was estimated as $\\bar{X} = \\frac{1}{n} \\sum X_i$. The standard deviation was found to be: \n",
+    "\n",
+    "$$\n",
+    "SE[\\bar{X}] = \\sqrt{\\frac{s^2}{n}} = \\frac{s}{\\sqrt{n}}\n",
+    "$$\n",
+    "\n",
+    "Given s was used as an estimator for $\\sigma$, the standardised estimator Z becomes:\n",
+    "\n",
+    "$$\n",
+    "Z = \\frac{X-\\mu}{\\sigma/\\sqrt{n}} \\implies T = \\frac{X-\\mu}{s/\\sqrt{n}} \n",
+    "$$\n",
+    "\n",
+    "With T following a t-distrubtion with $(n-1)$ degrees of freedom (df). Depending on whether $\\sigma$ is known or unknown, a different distriubtion should be used for calculation of the 95% CI. Note that for incerasing n the t-distrubtion will approach the normal distribution. \n",
+    "\n",
+    "$$\n",
+    "\\begin{array}{ c c c }\n",
+    " n & df & \\text{95% critical value} \\\\ \n",
+    " \\hline\n",
+    " 10 & 9 & 2.262 \\\\  \n",
+    " 20 & 19 & 2.093 \\\\\n",
+    " 30 & 29 & 2.045 \\\\\n",
+    " 50 & 49 & 2.010 \\\\\n",
+    " 100 & 99 & 1.984 \\\\\n",
+    " \\infty & \\infty & 1.960\n",
+    "\\end{array}\n",
+    "$$\n",
+    "\n",
+    "By normal approach, the 95% CI for the mean becomes:\n",
+    "\n",
+    "$$\n",
+    "CI_{95%} = \\bar{X} \\pm 1.96\\frac{\\sigma}{\\sqrt{n}}\n",
+    "$$\n",
+    "\n",
+    "By using t-distrubtion the 95% CI becomes:\n",
+    "\n",
+    "$$\n",
+    "CI_{95%} = \\bar{X} \\pm t_{0.975,n-1}\\frac{s}{\\sqrt{n}}\n",
+    "$$\n"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "a6db1bab-f766-424d-9fcc-64d807bf02b3",
+   "metadata": {},
+   "source": [
+    "# Statistical significance of obtained results"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "148c6d1b-067e-43f9-b43b-715785b54141",
+   "metadata": {},
+   "source": [
+    "## Expected value"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "954218fc-347c-41ec-a485-8229c7eca55f",
+   "metadata": {},
+   "source": [
+    "Assume the observed EV for a given sample of trades is positive, we can formulate a hypothesis test to determine whether there is statistical evidence that the true expected value is indeed also positive. As the objective is to determine whether the strategy has postive EV, a one-sided test should be used:\n",
+    "\n",
+    "$$\n",
+    "H_0: \\mu \\leq 0 \n",
+    "$$\n",
+    "\n",
+    "against \n",
+    "\n",
+    "$$\n",
+    "H_1: \\mu > 0 \n",
+    "$$\n",
+    "\n",
+    "Null hypothesis assumes the strategy does not have a postive edge. For calculating purposes the boundary of the hypothesis is used: $\\mu_0=0$. The test statistic is denoted by t\n",
+    "\n",
+    "$$\n",
+    "t = \\frac{\\bar{X}-\\mu_0}{SE(\\bar{X})} = \\frac{\\bar{X}}{s/\\sqrt{n}} \n",
+    "$$\n",
+    "\n",
+    "Under the null hypothesis, the test statistic follows a Student's t-distribution with (n-1) degrees of freedom. Assuming the null hypothesis is true, p-value is the probability of observing a test statistic as extreme as the observed value.  \n",
+    "\n",
+    "$$\n",
+    "p-value = P(T_{n-1} \\geq t_{obs})\n",
+    "$$\n",
+    "\n",
+    "For large n, the t-distribution approaches the standard normal distribution.\n",
+    "\n",
+    "$$\n",
+    "P(Z \\geq z) = 1- P(Z \\leq z) = 1-\\phi(z)\n",
+    "$$\n",
+    "\n",
+    "Finally a significance level should be chosen. Let $\\alpha=0.05$ then \n",
+    "\n",
+    "$$\n",
+    "\\begin{align*}\n",
+    "    p \\leq \\alpha \\rightarrow \\text{reject H_0, there is statistical evidence of positive EV} \\\\\n",
+    "    p > \\alpha \\rightarrow \\text{fail to reject H_0, no statistical evidence of positive EV} \n",
+    "\\end{align*}\n",
+    "$$\n",
+    "\n",
+    "Note: failing to reject (H_0) does not prove that the true EV is zero or negative. It means that the observed sample does not provide sufficient statistical evidence to conclude that the true EV is positive.\n",
+    "\n",
+    "### Relation to confidence interval\n",
+    "\n",
+    "The hypothesis test is closely related to the confidence interval. For a one-sided test at significance level $\\alpha=0.05$ the corresponding 95% one-sided confidence bound can be used to assess whether the true EV is demonstrably above zero."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "d660fd9a-1b36-4752-aac7-1b799702bf70",
+   "metadata": {},
+   "source": [
+    "# Risk-adjusted performance"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "e7423f89-3ab4-4c42-b39a-e564db3c287f",
+   "metadata": {},
+   "source": [
+    "## 1. Sharpe Ratio"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "84fead9f-cf3e-4325-9a75-a59df102fa13",
+   "metadata": {},
+   "source": [
+    "The Sharpe ratio measures risk-adjusted performance. It compares the average return of a strategy with the volatility of those returns.\n",
+    "\n",
+    "$$\n",
+    "Sharpe = \\frac{E[R - R_f]}{\\sigma(R)}\n",
+    "$$\n",
+    "\n",
+    "With $R_f$ the risk-free ratio. Initially this can be set equal to 0. Hence,\n",
+    "\n",
+    "$$\n",
+    "Sharpe = \\frac{\\bar{R}}{\\sigma(R)} = \\frac{\\bar{R}}{\\sqrt{\\frac{1}{n-1}\\sum (R_i - \\bar{R})^2}}\n",
+    "$$\n",
+    "\n",
+    "In this equation $\\sigma(R)$ is the standard deviation from the mean return R. As the exact R is unknown and we estimated it and 1 degree of freedom is lost. Thus, for $\\sigma(R)$ we will again approach it by s. R is the return per trade and $\\bar{R}$ the mean return over n observed trades. Returns can be calculated in a few different ways, for this project the following definition of return is used.\n",
+    "\n",
+    "$$\n",
+    "R = \\frac{Equity_t - Equity_{t-1}}{Equity_{t-1}}\n",
+    "$$\n",
+    "\n",
+    "Which shows the percentage win/loss compared to the total equity before the result of this trade. As a rule of thumb the following table might be usefull to interpret Sharpe ratio values.\n",
+    "\n",
+    "$$\n",
+    "\\begin{array}{ c c c }\n",
+    " \\text{Sharpe ratio} & Interpretation \\\\ \n",
+    " \\hline\n",
+    " <0 & \\text{negative average return} \\\\ \n",
+    " 0-0.5 & Weak \\\\ \n",
+    " 0.5-1.0 & Average \\\\ \n",
+    " 1.0-2.0 & Good \\\\ \n",
+    " 2.0-3.0 & Strong \\\\ \n",
+    " >3.0 & Excellent \\\\ \n",
+    "\\end{array}\n",
+    "$$\n",
+    "\n",
+    "Note: These thresholds are only rough guidelines. The Sharpe ratio should mainly be used to compare strategies with the same return frequency and methodology. In this backtest, the Sharpe ratio is calculated using per-trade returns. Therefore, it should not be interpreted as an annualized Sharpe ratio.\n"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "ead274b1-b972-4d5a-af39-b41747eb06bd",
+   "metadata": {},
+   "source": [
+    "## 2. Sortino Ratio"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "a4511dda-15b7-4626-8b10-8f06ca40f000",
+   "metadata": {},
+   "source": [
+    "While Sharpe ratio measures the returns compared to overall volatility, Sortino ratio will only look into downside volatility. It can be calculated as follows:\n",
+    "\n",
+    "$$\n",
+    "Sortino = \\frac{\\bar{R}-R_{target}}{\\sigma(R)_{downside}}\n",
+    "$$\n",
+    "\n",
+    "Usually $R_{target}=0$. Hence,\n",
+    "\n",
+    "$$\n",
+    "Sortino = \\frac{\\bar{R}}{\\sigma(R)_{downside}} = \\frac{\\bar{R}}{\\sqrt{\\frac{1}{n}\\sum_{R_i<0} (R_i - 0)^2}}\n",
+    "$$\n",
+    "\n",
+    "In this equation, $\\sigma(R)_{downside}$ is the standard deviation of all negative values from the target value (which is 0 in this case). As the target value is known, no degrees of freedom are lost so we approach it by $\\sigma$. Only negative values are taken into account, all positive returns are set equal to 0, their stadard deviation from the target $R=0$ will also be 0. To interpret the results for the Sortino ratio, as a rule of thumb the follwoing table can be used:\n",
+    "\n",
+    "$$\n",
+    "\\begin{array}{ c c c }\n",
+    " \\text{Sortino ratio} & Interpretation \\\\ \n",
+    " \\hline\n",
+    " <0 & \\text{negative average return} \\\\ \n",
+    " 0-0.5 & Weak \\\\ \n",
+    " 0.5-1.0 & Average \\\\ \n",
+    " 1.0-2.0 & Good \\\\ \n",
+    " 2.0-3.0 & Strong \\\\ \n",
+    " >3.0 & Excellent \\\\ \n",
+    "\\end{array}\n",
+    "$$\n",
+    "\n",
+    "Same note as for the Sharpe ratio applies to the Sortino ratio."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "29d443fe-d1e2-49a2-8b24-adc8bafe676e",
+   "metadata": {},
+   "source": [
+    "## 3. Calmar Ratio"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "68886eb3-531b-42fc-a39d-38bc24b4950f",
+   "metadata": {},
+   "source": [
+    "The calmar ratio measures the return compared to the drawdown of the strategy. It can be calculated by:\n",
+    "\n",
+    "$$\n",
+    "Calmar = \\frac{R_{anual}}{|DD_{Max}|}\n",
+    "$$\n",
+    "\n",
+    "If the backtets is performed on exactly 1 year of historical data, $R_{anual}$ will be equal to the total PnL. However, in case sample period is different from 1 year, it should be anualized. Let x be sample period in days, then the return can be anualized by:\n",
+    "\n",
+    "$$\n",
+    "R_{anual} = (1 + R_{total})^{365/x} - 1 \n",
+    "$$\n",
+    "\n",
+    "Note the differnce with the Sharpe and Sortino ratio, where we used the average return. It gave a measure of the return per trade per unit deviation. Here we measure the total return pe runit of the maximum drawdown. It gives an insight on the drawdown risk. Also note, Annualization over short backtest periods can produce unstable estimates. Calmar should therefore be interpreted cautiously when the backtest period is short."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "84750df9-cdf8-4e40-bdff-898c252883b4",
+   "metadata": {},
+   "source": [
+    "# Distribution analysis"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "5d1c8b7b-1c5e-453a-a1d2-7b263f59c57b",
+   "metadata": {},
+   "source": [
+    "## Median\n",
+    "\n",
+    "While the traditional mean or average might take into account outliers, the median will be less susceptible to this. It shows where the most common result lies within the distribution. A strategy might rely on a few big wins and a larger series of consecutive smaller losses. In this case the mean and expecetd value might be positive but the median will be negative, as the most common outcome will be a loss. This can also be seen however looking at the combination of risk reward ratio and win rate. For this particular strategy, the RR ratio will be high but the win rate will be low. \n",
+    "\n",
+    "## Best Trade & Worst Trade\n",
+    "\n",
+    "These will give an idea what the tails of the distribution look like.\n",
+    "\n",
+    "## Skewness\n",
+    "\n",
+    "Measures the assymetrie of a distribution. With a negative skewness indicating a longer left tail (negative side) and a positive skewness indicating a longer right tail (positive side). For a perfectly symmetrical distribution the skewness will be 0. Mathematically, skewness is the standardised distance from the mean. The power of 3 idicates the direction of assymetrie.\n",
+    "\n",
+    "$$\n",
+    "Skewness = \\frac{E[(X-\\mu)^3]}{\\sigma^3}\n",
+    "$$\n",
+    "\n",
+    "Strategies with a high reward-to-risk ratio combined with a lower win rate can produce a positively skewed PnL distribution, where many smaller losses are offset by fewer larger wins. \n",
+    "\n",
+    "## Kurtosis\n",
+    "\n",
+    "Measures the relative amount of outliers/extreme values compared to a normal distribution. It gives a measure on how heavy/extreme the tails of the distribution are or how often observation are found far from the mean value. The formula is:\n",
+    "\n",
+    "$$\n",
+    "Kurtosis = \\frac{E[(X-\\mu)^4]}{\\sigma^4}\n",
+    "$$\n",
+    "\n",
+    "Again, due to the power of 4 more focus is put on the larger distances, but all distances are considered positive. Note: pandas reports excess kurtosis instead of classic pearson kurtosis.Therefore, a normal distribution will have kurtosis 0. Positive values indicate a heavier tail then a normal distribution, negative values a lighter tail. \n",
+    "\n",
+    "$$\n",
+    "\\begin{align*}\n",
+    "    Mean \\rightarrow (X-\\mu) \\\\\n",
+    "    Variance \\rightarrow (X-\\mu)^2 \\\\\n",
+    "    Skewness \\rightarrow (X-\\mu)^3 \\\\\n",
+    "    Kurtosis \\rightarrow (X-\\mu)^4\n",
+    "\\end{align*}\n",
+    "$$"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "ec7ba3c7-0e06-4610-abcd-945cb2a6e413",
+   "metadata": {},
+   "source": []
+  },
+  {
+   "cell_type": "markdown",
+   "id": "9b61e685-1a71-4f05-9572-02cfcde66609",
+   "metadata": {},
+   "source": []
+  }
+ ],
+ "metadata": {
+  "kernelspec": {
+   "display_name": "Python 3 (ipykernel)",
+   "language": "python",
+   "name": "python3"
+  },
+  "language_info": {
+   "codemirror_mode": {
+    "name": "ipython",
+    "version": 3
+   },
+   "file_extension": ".py",
+   "mimetype": "text/x-python",
+   "name": "python",
+   "nbconvert_exporter": "python",
+   "pygments_lexer": "ipython3",
+   "version": "3.14.3"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 5
+}

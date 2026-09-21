@@ -66,17 +66,18 @@ def distribution_exits(trades_df):
     plt.grid()
     plt.show()
 
-def distribution_PnL(trades_df):
-    plt.figure(figsize=(12,6))
-    trades_df = trades_df.copy()
+def plot_pnl_distribution(trades_df):
+    pnl = trades_df["PnL"]
 
-    plt.hist(
-        trades_df["PnL"],
-        bins=20
-    )
-    plt.title("PnL Distribution")
-    plt.xlabel("PnL ($)")
+    plt.figure(figsize=(10, 6))
+    plt.hist(pnl, bins=10, edgecolor="black")
+
+    plt.axvline(pnl.mean(), linestyle='--', label=f"Mean={pnl.mean():.2f}")
+    plt.axvline(pnl.median(), linestyle='--', label=f"Median={pnl.median():.2f}")
+
+    plt.xlabel("PnL per trade")
     plt.ylabel("Frequency")
-    
-    plt.grid()
+    plt.title("Distribution of trades PnL")
+    plt.legend()
     plt.show()
+    

@@ -25,6 +25,9 @@ def key_statistics(trades_df):
             profit_factor = gross_profit / gross_loss
         
         winrate = len(wins) / len(trades_df) * 100
+
+        exit_counts = trades_df["Reason exit"].value_counts()
+        exit_percentages = trades_df["Reason exit"].value_counts(normalize=True)*100
     
         results = {
             "Trades": len(trades_df),
@@ -34,7 +37,9 @@ def key_statistics(trades_df):
             "AvgWin": round(trades_df.loc[trades_df["PnL"] > 0, "PnL"].mean(), 2),
             "AvgLoss": round(trades_df.loc[trades_df["PnL"] <= 0, "PnL"].mean(), 2),
             "MaxDrawdown": round(trades_df["Drawdown"].min(), 2),
-            "Return/DD": round(trades_df["PnL"].sum()/abs(trades_df["Drawdown"].min()), 2)
+            "Return/DD": round(trades_df["PnL"].sum()/abs(trades_df["Drawdown"].min()), 2),
+            "Exits": exit_counts,
+            "Percentage exits": exit_percentages
         }
     
         return pd.Series(results)

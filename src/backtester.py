@@ -8,7 +8,7 @@ import pandas as pd
 # Local imports
 
 
-def backtest(data, deposit=100, risk_reward_ratio=2):
+def backtest(data, deposit=100, risk_reward_ratio=2, starting_equity=10000):
     data = data.copy()
     position = None
     trades = []
@@ -140,7 +140,10 @@ def backtest(data, deposit=100, risk_reward_ratio=2):
     
     #calculation maximum drawdown
     trades_df["CumPnL"] = trades_df["PnL"].cumsum()
-    trades_df["Peak"] = trades_df["CumPnL"].cummax()
-    trades_df["Drawdown"] = trades_df["CumPnL"] - trades_df["Peak"]
+    trades_df["Equity"] = starting_equity + trades_df["PnL"].cumsum()
+    trades_df["Peak"] = trades_df["Equity"].cummax()
+    trades_df["Drawdown"] = trades_df["Equity"] - trades_df["Peak"]
+    trades_df["DrawdownPct"] = (trades_df["Equity"] - trades_df["Peak"]) / trades_df["Peak"]
+    trades_df["Return"] = (trades_df["Equity"] / trades_df["Equity"].shift(1).fillna(starting_equity)) - 1
     
     return trades_df
