@@ -41,7 +41,7 @@ def pnl_per_trade(trades_df):
 
     plt.bar(
         trades_df.index,
-        trades_df["PnL"]
+        trades_df["Net_PnL"]
     )
     plt.title("PnL per Trade")
     plt.xlabel("Trade Number")
@@ -67,7 +67,7 @@ def distribution_exits(trades_df):
     plt.show()
 
 def plot_pnl_distribution(trades_df):
-    pnl = trades_df["PnL"]
+    pnl = trades_df["Net_PnL"]
 
     plt.figure(figsize=(10, 6))
     plt.hist(pnl, bins=10, edgecolor="black")

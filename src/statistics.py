@@ -14,7 +14,7 @@ def win_rate(trades_df, confidence=0.95):
         return pd.Series()
 
     n = len(trades_df)
-    wins = (trades_df["PnL"] > 0).sum()
+    wins = (trades_df["Net_PnL"] > 0).sum()
     p = wins/n
     SE_p = np.sqrt((p*(1-p))/n)
 
@@ -36,8 +36,8 @@ def expected_value(trades_df, confidence=0.95):
         return pd.Series()
 
     n = len(trades_df)
-    mean = trades_df["PnL"].mean()
-    s = trades_df["PnL"].std(ddof=1)
+    mean = trades_df["Net_PnL"].mean()
+    s = trades_df["Net_PnL"].std(ddof=1)
     SE_mean = s/np.sqrt(n)
 
     alpha = 1- confidence
@@ -60,11 +60,11 @@ def test_win_rate(trades_df, alpha=0.05):
         return pd.Series()
 
     n = len(trades_df)
-    wins = (trades_df["PnL"] > 0).sum()
+    wins = (trades_df["Net_PnL"] > 0).sum()
     p = wins/n
     
-    avgWin = trades_df.loc[trades_df["PnL"] > 0, "PnL"].mean()
-    avgLoss = trades_df.loc[trades_df["PnL"] < 0, "PnL"].mean()
+    avgWin = trades_df.loc[trades_df["Net_PnL"] > 0, "Net_PnL"].mean()
+    avgLoss = trades_df.loc[trades_df["Net_PnL"] < 0, "Net_PnL"].mean()
     
     p_0 = (-avgLoss)/(avgWin - avgLoss)
     SE_0 = np.sqrt((p_0*(1-p_0))/n)
@@ -91,8 +91,8 @@ def test_expected_value(trades_df, null=0, alpha=0.05):
     
     n = len(trades_df)
     
-    EV = trades_df["PnL"].mean()
-    s = trades_df["PnL"].std(ddof=1)
+    EV = trades_df["Net_PnL"].mean()
+    s = trades_df["Net_PnL"].std(ddof=1)
     SE_EV_0 = s/np.sqrt(n)
 
     t_stat = (EV - null)/SE_EV_0

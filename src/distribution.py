@@ -13,7 +13,7 @@ def distribution_statistics(trades_df):
     if trades_df.empty:
         return pd.Series()
 
-    pnl = trades_df["PnL"]
+    pnl = trades_df["Net_PnL"]
 
     return pd.Series({
         "Median": pnl.median(),

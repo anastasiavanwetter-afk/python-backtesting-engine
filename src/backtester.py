@@ -8,7 +8,7 @@ import pandas as pd
 # Local imports
 
 
-def backtest(data, deposit=100, risk_reward_ratio=2, starting_equity=10000):
+def backtest(data, deposit=100, risk_reward_ratio=2.5, starting_equity=10000, commission_per_share=0.005, slippage_bps=1, stop_distance=0.05):
     data = data.copy()
     position = None
     trades = []
@@ -18,26 +18,30 @@ def backtest(data, deposit=100, risk_reward_ratio=2, starting_equity=10000):
         if position is None:
             if row["LongSignal"]:
                 if i+1 < len(data):
-                    entry = round(data.iloc[i+1]["Open"], 2)
+                    theoretical_entry = round(data.iloc[i+1]["Open"], 2)
                     entry_time = row.name
-                    stoploss = round(row["stoploss"], 2)
-                    risk = round(max(entry-stoploss, 0.05*row["ATR"]), 2)
-                    takeProfit = round(entry + (risk_reward_ratio*risk), 2)
+                    original_stoploss = row["stoploss"]
+                    risk = round(max(theoretical_entry-original_stoploss, stop_distance*row["ATR"]), 2)
                     shares = round(deposit/risk, 0)
-                    if takeProfit <= entry + 1.2*row["ATR"]:
-                        position = {"side": "Long", "entry": entry, "entry_time": entry_time, "risk": risk, "stoploss": stoploss, "takeProfit": takeProfit, "shares": shares}
+                    actual_entry = theoretical_entry + slippage_bps/10000*theoretical_entry
+                    stoploss = round(actual_entry-risk, 2)
+                    takeProfit = round(actual_entry + (risk_reward_ratio*risk), 2)
+                    if takeProfit <= actual_entry + 1.2*row["ATR"]:
+                        position = {"side": "Long", "entry": actual_entry, "entry_time": entry_time, "risk": risk, "stoploss": stoploss, "takeProfit": takeProfit, "shares": shares}
                         
     
             elif row["ShortSignal"]:
                 if i+1 < len(data):
-                    entry = round(data.iloc[i+1]["Open"], 2)
+                    theoretical_entry = round(data.iloc[i+1]["Open"], 2)
                     entry_time = row.name
-                    stoploss = round(row["stoploss"], 2)
-                    risk = round(max(stoploss-entry, 0.05*row["ATR"]), 2)
-                    takeProfit = round(entry - (risk_reward_ratio*risk), 2)
+                    original_stoploss = row["stoploss"]
+                    risk = round(max(original_stoploss-theoretical_entry, stop_distance*row["ATR"]), 2)
                     shares = round(deposit/risk, 0)
-                    if takeProfit >= entry - 1.2*row["ATR"]:
-                        position = {"side": "Short", "entry": entry, "entry_time": entry_time, "risk": risk, "stoploss": stoploss, "takeProfit": takeProfit, "shares": shares}
+                    actual_entry = theoretical_entry - slippage_bps/10000*theoretical_entry
+                    stoploss = round(actual_entry+risk, 2)
+                    takeProfit = round(actual_entry - (risk_reward_ratio*risk), 2)
+                    if takeProfit >= actual_entry - 1.2*row["ATR"]:
+                        position = {"side": "Short", "entry": actual_entry, "entry_time": entry_time, "risk": risk, "stoploss": stoploss, "takeProfit": takeProfit, "shares": shares}
                         
         else:
             entry = position["entry"]
@@ -58,8 +62,10 @@ def backtest(data, deposit=100, risk_reward_ratio=2, starting_equity=10000):
                                    "Takeprofit": takeProfit,
                                    "Size": shares,
                                    "Exit Time": row.name,
-                                   "Exit": takeProfit,
-                                   "PnL": (takeProfit - entry)*shares,
+                                   "Exit": takeProfit-slippage_bps/10000*takeProfit,
+                                   "Gross_PnL": (takeProfit - entry)*shares,
+                                   "Commission + slippage": (slippage_bps/10000*takeProfit + 2*commission_per_share)*shares,
+                                   "Net_PnL": (takeProfit-slippage_bps/10000*takeProfit - entry - 2*commission_per_share)*shares,
                                    "Reason exit": "TP"})
                     position = None
     
@@ -72,8 +78,10 @@ def backtest(data, deposit=100, risk_reward_ratio=2, starting_equity=10000):
                                    "Takeprofit": takeProfit,
                                    "Size": shares,
                                    "Exit Time": row.name,
-                                   "Exit": stoploss,
-                                   "PnL": (stoploss - entry)*shares,
+                                   "Exit": stoploss-slippage_bps/10000*stoploss,
+                                   "Gross_PnL": (stoploss - entry)*shares,
+                                   "Commission + slippage": (slippage_bps/10000*stoploss + 2*commission_per_share)*shares,
+                                   "Net_PnL": (stoploss-slippage_bps/10000*stoploss - entry - 2*commission_per_share)*shares,
                                    "Reason exit": "SL"})
                     position = None
     
@@ -87,8 +95,10 @@ def backtest(data, deposit=100, risk_reward_ratio=2, starting_equity=10000):
                                    "Takeprofit": takeProfit,
                                    "Size": shares,
                                    "Exit Time": row.name,
-                                   "Exit": row["Close"],
-                                   "PnL": pnl*shares,
+                                   "Exit": row["Close"]-slippage_bps/10000*row['Close'],
+                                   "Gross_PnL": pnl*shares,
+                                   "Commission + slippage": (slippage_bps/10000*row['Close'] + 2*commission_per_share)*shares,
+                                   "Net_PnL": (pnl-slippage_bps/10000*row['Close'] - 2*commission_per_share)*shares,
                                    "Reason exit": "EOD"})
                     position = None
     
@@ -102,8 +112,10 @@ def backtest(data, deposit=100, risk_reward_ratio=2, starting_equity=10000):
                                    "Takeprofit": takeProfit,
                                    "Size": shares,
                                    "Exit Time": row.name,
-                                   "Exit": takeProfit,
-                                   "PnL": (entry - takeProfit)*shares,
+                                   "Exit": takeProfit+slippage_bps/10000*takeProfit,
+                                   "Gross_PnL": (entry-takeProfit)*shares,
+                                   "Commission + slippage": (slippage_bps/10000*takeProfit + 2*commission_per_share)*shares,
+                                   "Net_PnL": (entry - (takeProfit+slippage_bps/10000*takeProfit) - 2*commission_per_share)*shares,
                                    "Reason exit": "TP"})
                     position = None
     
@@ -116,8 +128,10 @@ def backtest(data, deposit=100, risk_reward_ratio=2, starting_equity=10000):
                                    "Takeprofit": takeProfit,
                                    "Size": shares,
                                    "Exit Time": row.name,
-                                   "Exit": stoploss,
-                                   "PnL": (entry - stoploss)*shares,
+                                   "Exit": stoploss+slippage_bps/10000*stoploss,
+                                   "Gross_PnL": (entry-stoploss)*shares,
+                                   "Commission + slippage": (slippage_bps/10000*stoploss + 2*commission_per_share)*shares,
+                                   "Net_PnL": (entry - (stoploss+slippage_bps/10000*stoploss)- 2*commission_per_share)*shares,
                                    "Reason exit": "SL"})
                     position = None
     
@@ -131,16 +145,18 @@ def backtest(data, deposit=100, risk_reward_ratio=2, starting_equity=10000):
                                    "Takeprofit": takeProfit,
                                    "Size": shares,
                                    "Exit Time": row.name,
-                                   "Exit": row["Close"],
-                                   "PnL": pnl*shares,
+                                   "Exit": row["Close"]+slippage_bps/10000*row['Close'],
+                                   "Gross_PnL": pnl*shares,
+                                   "Commission + slippage": (slippage_bps/10000*row['Close'] + 2*commission_per_share)*shares,
+                                   "Net_PnL": (pnl+slippage_bps/10000*row['Close'] - 2*commission_per_share)*shares,
                                    "Reason exit": "EOD"})
                     position = None
     
     trades_df = pd.DataFrame(trades)
     
     #calculation maximum drawdown
-    trades_df["CumPnL"] = trades_df["PnL"].cumsum()
-    trades_df["Equity"] = starting_equity + trades_df["PnL"].cumsum()
+    trades_df["CumPnL"] = trades_df["Net_PnL"].cumsum()
+    trades_df["Equity"] = starting_equity + trades_df["Net_PnL"].cumsum()
     trades_df["Peak"] = trades_df["Equity"].cummax()
     trades_df["Drawdown"] = trades_df["Equity"] - trades_df["Peak"]
     trades_df["DrawdownPct"] = (trades_df["Equity"] - trades_df["Peak"]) / trades_df["Peak"]

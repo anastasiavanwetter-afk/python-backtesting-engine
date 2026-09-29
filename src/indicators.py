@@ -44,6 +44,7 @@ def get_atr(data, daily, window=14):
     )
 
     daily["ATR"] = atr.average_true_range()
+    daily["ATR"] = daily["ATR"].shift(1)
 
     atr_map = daily["ATR"]
     atr_map.index = daily.index.date

@@ -7,7 +7,7 @@ from statistics import win_rate, expected_value, test_expected_value, Sharpe_rat
 from distribution import distribution_statistics
 from plots import equity_curve, drawdown_curve, pnl_per_trade, distribution_exits, plot_pnl_distribution
 
-ticker = "AAPL"
+ticker = "SPY"
 
 # Load data
 data = load_yfinance_data(ticker)
@@ -27,7 +27,10 @@ data = get_dayrange(data)
 data = crossover_strategy(data)
 
 # Backtest
-trades = backtest(data, risk_reward_ratio=2)
+trades = backtest(data, risk_reward_ratio=2.2)
+
+#print trades to csv
+trades.to_csv('trades.csv', index=False, encoding='utf-8')
 
 # Statistics
 performance_metrics = key_statistics(trades)
@@ -85,9 +88,9 @@ print(f"Worst trade:         {distribution['Worst']:.2f}")
 print(f"Skewness:            {distribution['Skewness']:.2f}")
 print(f"Kurtosis:            {distribution['Kurtosis']:.2f}")
 
-# Plots
+'''# Plots
 equity_curve(trades)
 drawdown_curve(trades)
 pnl_per_trade(trades)
 distribution_exits(trades)
-plot_pnl_distribution(trades)
+plot_pnl_distribution(trades)'''

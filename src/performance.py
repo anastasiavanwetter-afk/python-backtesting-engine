@@ -14,11 +14,11 @@ def key_statistics(trades_df):
         trades_df = trades_df.copy()
         results = {}
         
-        wins = trades_df[trades_df["PnL"] > 0]
-        losses = trades_df[trades_df["PnL"] <= 0]
+        wins = trades_df[trades_df["Net_PnL"] > 0]
+        losses = trades_df[trades_df["Net_PnL"] <= 0]
         
-        gross_profit = trades_df.loc[trades_df["PnL"] > 0, "PnL"].sum()
-        gross_loss = abs(trades_df.loc[trades_df["PnL"] < 0, "PnL"].sum())
+        gross_profit = trades_df.loc[trades_df["Net_PnL"] > 0, "Net_PnL"].sum()
+        gross_loss = abs(trades_df.loc[trades_df["Net_PnL"] < 0, "Net_PnL"].sum())
         if gross_loss == 0:
             profit_factor = np.inf
         else:
@@ -33,11 +33,11 @@ def key_statistics(trades_df):
             "Trades": len(trades_df),
             "Winrate": round(winrate, 2),
             "ProfitFactor": round(profit_factor, 2),
-            "TotalPnL": round(trades_df["PnL"].sum(), 2),
-            "AvgWin": round(trades_df.loc[trades_df["PnL"] > 0, "PnL"].mean(), 2),
-            "AvgLoss": round(trades_df.loc[trades_df["PnL"] <= 0, "PnL"].mean(), 2),
+            "TotalPnL": round(trades_df["Net_PnL"].sum(), 2),
+            "AvgWin": round(trades_df.loc[trades_df["Net_PnL"] > 0, "Net_PnL"].mean(), 2),
+            "AvgLoss": round(trades_df.loc[trades_df["Net_PnL"] <= 0, "Net_PnL"].mean(), 2),
             "MaxDrawdown": round(trades_df["Drawdown"].min(), 2),
-            "Return/DD": round(trades_df["PnL"].sum()/abs(trades_df["Drawdown"].min()), 2),
+            "Return/DD": round(trades_df["Net_PnL"].sum()/abs(trades_df["Drawdown"].min()), 2),
             "Exits": exit_counts,
             "Percentage exits": exit_percentages
         }
